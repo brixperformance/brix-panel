@@ -61,7 +61,6 @@ $orderStmt = $pdo->prepare('
         COALESCE(ord_shipping_amount, 0) AS shipping_amount,
         ord_status AS status,
         ord_created_at AS created_at,
-        ord_updated_at AS updated_at,
         COALESCE(ord_customer_name, "") AS customer_name,
         COALESCE(ord_customer_email, "") AS customer_email,
         COALESCE(ord_customer_phone, "") AS customer_phone,
@@ -83,11 +82,8 @@ if (!$order) {
 
 $paymentStmt = $pdo->prepare('
     SELECT
-        pay_ord_code AS order_id,
-        COALESCE(pay_snap_token, "") AS snap_token,
         COALESCE(pay_transaction_status, "") AS transaction_status,
-        COALESCE(pay_payment_type, "") AS payment_type,
-        pay_created_at AS created_at
+        COALESCE(pay_payment_type, "") AS payment_type
     FROM tr_payments
     WHERE pay_ord_code = :order_id
     ORDER BY pay_created_at DESC, pay_id DESC
@@ -98,13 +94,9 @@ $payment = $paymentStmt->fetch(PDO::FETCH_ASSOC) ?: [];
 
 $itemsStmt = $pdo->prepare('
     SELECT
-        ori_ord_code AS order_id,
         COALESCE(ori_item_code, "") AS item_id,
         COALESCE(ori_name, "") AS name,
         COALESCE(ori_price, 0) AS price,
-        COALESCE(ori_original_price, 0) AS original_price,
-        COALESCE(ori_discount_amount, 0) AS discount_amount,
-        COALESCE(ori_discount_label, "") AS discount_label,
         COALESCE(ori_final_price, 0) AS final_price,
         COALESCE(ori_quantity, 0) AS quantity,
         COALESCE(ori_line_total, 0) AS line_total
@@ -142,46 +134,45 @@ if ($rows === [] && $items !== []) {
     }
 }
 
-$status = strtoupper(trim((string) ($order['status'] ?? 'PENDING')));
-$paymentStatus = strtoupper(trim((string) ($payment['transaction_status'] ?? $status)));
-$paymentType = trim((string) ($payment['payment_type'] ?? ''));
 $customerName = trim((string) ($order['customer_name'] ?? ''));
 $customerEmail = trim((string) ($order['customer_email'] ?? ''));
 $customerPhone = trim((string) ($order['customer_phone'] ?? ''));
-$billTo = shop_order_preview_split_lines([$customerName, $customerPhone, $customerEmail]);
-$shipTo = shop_order_preview_split_lines([
-    (string) ($order['shipping_address'] ?? ''),
-    trim((string) (($order['shipping_city'] ?? '') . ' ' . ($order['shipping_postal'] ?? ''))),
-]);
+$shippingAddress = trim((string) ($order['shipping_address'] ?? ''));
+$shippingCity = trim((string) ($order['shipping_city'] ?? ''));
+$shippingPostal = trim((string) ($order['shipping_postal'] ?? ''));
+
+$billToLines = preg_split('/\r\n|\r|\n/', shop_order_preview_split_lines([
+    $customerName,
+    $customerPhone,
+    $customerEmail,
+    $shippingAddress,
+    trim($shippingCity . ' ' . $shippingPostal),
+])) ?: [];
+$billToDisplay = trim((string) ($billToLines[0] ?? $orderId));
 
 $subtotal = (float) ($order['subtotal_amount'] ?? 0);
-$productDiscount = (float) ($order['product_discount_total_amount'] ?? 0);
-$referralDiscount = (float) ($order['referral_discount_total_amount'] ?? 0);
-$shippingDiscount = (float) ($order['shipping_discount_total_amount'] ?? 0);
+$discountCost = (float) ($order['product_discount_total_amount'] ?? 0)
+    + (float) ($order['referral_discount_total_amount'] ?? 0)
+    + (float) ($order['shipping_discount_total_amount'] ?? 0);
 $shippingCost = (float) ($order['shipping_amount'] ?? 0);
 $total = (float) ($order['payable_amount'] ?? 0);
 
 $invoiceNumber = $orderId;
-$invoiceDate = date('F j, Y', strtotime((string) ($order['created_at'] ?? 'now')));
-$invoiceStatus = $status !== '' ? $status : 'PENDING';
+$createdTimestamp = strtotime((string) ($order['created_at'] ?? 'now')) ?: time();
+$invoiceDateDisplay = date('d/m/Y', $createdTimestamp);
+$invoiceTimeDisplay = date('h:i:s A', $createdTimestamp);
+$issuedByName = 'BRIX Performance';
+$issuedByPhone = '+62 897-9754-254';
+$issuedByEmail = 'brixperformance@gmail.com';
+$fixedFooterNote = 'This invoice is automatically generated and serves as the official proof of purchase for this transaction.';
+$fixedFooterSubNote = 'System generated document. No signature required.';
 $pdfFileName = 'Shop Invoice - ' . preg_replace('/[^\w\- ]+/u', '', $invoiceNumber) . '.pdf';
-$notesHeader = 'Order Notes';
-$notesParagraphs = [
-    'This preview is generated directly from the latest BRIX Shop order data.',
-    'Item discounts, referral discounts, and shipping adjustments are summarized below to match the current checkout flow.',
-];
-$closingHeader = 'Thank you for shopping with BRIX.';
-$closingParagraphs = [
-    'Please contact the team if you need help with payment confirmation or delivery follow-up.',
-];
 
-$ITEMS_PER_PAGE = 4;
+$ITEMS_PER_PAGE = 5;
 $pages = array_chunk($rows, $ITEMS_PER_PAGE);
 if ($pages === []) {
     $pages = [[]];
 }
-$totalPages = count($pages);
-$globalIndex = 0;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -205,59 +196,46 @@ $globalIndex = 0;
         <div class="invoice-scale-wrap" id="invoice-scale-wrap">
             <div class="invoice-pages" id="invoice-pages">
                 <?php foreach ($pages as $pageIndex => $pageRows): ?>
-                    <?php
-                    $isFirst = $pageIndex === 0;
-                    $isLast = $pageIndex === $totalPages - 1;
-                    ?>
+                    <?php $isFirst = $pageIndex === 0; ?>
                     <section class="invoice-sheet" id="<?= $isFirst ? 'invoice-sheet' : 'invoice-sheet-' . $pageIndex ?>">
                         <div class="inv-topbar">
                             <div class="inv-topbar-left">
+                                <img src="/assets/images/logos/logo-brix-blue.jpg" alt="BRIX Performance">
+                            </div>
+                            <div class="inv-head-meta">
                                 <h1 class="inv-title">INVOICE</h1>
-                                <div class="inv-details" style="text-align:left;margin-top:2mm;">
-                                    <div class="inv-details-line" style="justify-content:flex-start;">
-                                        <span>Order</span>
+                                <div class="inv-details">
+                                    <div class="inv-details-line">
+                                        <span>Invoice ID :</span>
                                         <strong>#<?= htmlspecialchars($invoiceNumber, ENT_QUOTES) ?></strong>
                                     </div>
-                                    <div class="inv-details-line" style="justify-content:flex-start;">
-                                        <span>Order Date</span>
-                                        <strong><?= htmlspecialchars($invoiceDate, ENT_QUOTES) ?></strong>
+                                    <div class="inv-details-line">
+                                        <span>Invoice Date :</span>
+                                        <div class="inv-details-stack">
+                                            <strong><?= htmlspecialchars($invoiceDateDisplay, ENT_QUOTES) ?></strong>
+                                            <strong><?= htmlspecialchars($invoiceTimeDisplay, ENT_QUOTES) ?></strong>
+                                        </div>
                                     </div>
-                                    <div class="inv-details-line" style="justify-content:flex-start;">
-                                        <span>Status</span>
-                                        <strong><?= htmlspecialchars($invoiceStatus, ENT_QUOTES) ?></strong>
-                                    </div>
-                                    <?php if ($totalPages > 1): ?>
-                                    <div class="inv-details-line" style="justify-content:flex-start;">
-                                        <span>Page</span>
-                                        <strong><?= ($pageIndex + 1) . ' / ' . $totalPages ?></strong>
-                                    </div>
-                                    <?php endif; ?>
                                 </div>
                             </div>
-                            <div class="inv-brand">
-                                <img src="/assets/images/logos/logo-brill-square.png" alt="Brill">
-                            </div>
                         </div>
-                        <div class="inv-rule"></div>
 
                         <?php if ($isFirst): ?>
                         <div class="inv-addr-row">
                             <div class="inv-addr">
-                                <span class="inv-addr-label">Invoice To:</span>
-                                <strong class="inv-addr-name"><?= htmlspecialchars($customerName !== '' ? $customerName : $invoiceNumber, ENT_QUOTES) ?></strong>
-                                <?php if ($billTo !== ''): ?>
-                                <span class="inv-addr-value"><?= nl2br(htmlspecialchars($billTo, ENT_QUOTES)) ?></span>
-                                <?php endif; ?>
-                                <?php if ($shipTo !== ''): ?>
-                                <span class="inv-addr-sub-label">Ship To:</span>
-                                <span class="inv-addr-value"><?= nl2br(htmlspecialchars($shipTo, ENT_QUOTES)) ?></span>
-                                <?php endif; ?>
+                                <span class="inv-addr-label">BILLED TO</span>
+                                <strong class="inv-addr-name"><?= htmlspecialchars($billToDisplay, ENT_QUOTES) ?></strong>
+                                <?php foreach (array_slice($billToLines, 1) as $line): ?>
+                                    <?php if (trim((string) $line) !== ''): ?>
+                                    <span class="inv-addr-value"><?= htmlspecialchars((string) $line, ENT_QUOTES) ?></span>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
                             </div>
-                            <div class="inv-addr inv-addr--right">
-                                <span class="inv-addr-label">Payment Summary:</span>
-                                <span class="inv-addr-value">Order Status: <?= htmlspecialchars($status, ENT_QUOTES) ?></span>
-                                <span class="inv-addr-value">Payment Status: <?= htmlspecialchars($paymentStatus !== '' ? $paymentStatus : '-', ENT_QUOTES) ?></span>
-                                <span class="inv-addr-value">Method: <?= htmlspecialchars($paymentType !== '' ? $paymentType : '-', ENT_QUOTES) ?></span>
+                            <div class="inv-addr">
+                                <span class="inv-addr-label">ISSUED BY</span>
+                                <strong class="inv-addr-name"><?= htmlspecialchars($issuedByName, ENT_QUOTES) ?></strong>
+                                <span class="inv-addr-value"><?= htmlspecialchars($issuedByPhone, ENT_QUOTES) ?></span>
+                                <span class="inv-addr-value"><?= htmlspecialchars($issuedByEmail, ENT_QUOTES) ?></span>
                             </div>
                         </div>
                         <?php else: ?>
@@ -267,96 +245,66 @@ $globalIndex = 0;
                         <table class="inv-table">
                             <thead>
                                 <tr>
-                                    <th>No</th>
-                                    <th>Item</th>
-                                    <th>Qty</th>
-                                    <th>Rate</th>
-                                    <th>Amount</th>
+                                    <th>PRODUCT</th>
+                                    <th>PRICE</th>
+                                    <th>QTY</th>
+                                    <th>TOTAL</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php if ($pageRows === []): ?>
-                                <tr>
-                                    <td colspan="5">No item rows found for this order.</td>
-                                </tr>
-                                <?php endif; ?>
                                 <?php foreach ($pageRows as $row): ?>
                                     <?php
-                                    $globalIndex++;
                                     $itemParts = explode(' - ', (string) $row['item'], 2);
                                     $itemBrand = $itemParts[0];
                                     $itemDetail = preg_replace('/\s+-$/', '', trim((string) ($itemParts[1] ?? '')));
-                                    $quantityLabel = rtrim(rtrim(number_format((float) $row['quantity'], 2, '.', ','), '0'), '.');
                                     ?>
                                     <tr>
-                                        <td><?= $globalIndex ?></td>
                                         <td>
                                             <span class="inv-item-brand"><?= htmlspecialchars($itemBrand, ENT_QUOTES) ?></span>
                                             <span class="inv-item-detail"><?= htmlspecialchars($itemDetail !== '' ? $itemDetail : $itemBrand, ENT_QUOTES) ?></span>
                                         </td>
-                                        <td><?= htmlspecialchars($quantityLabel, ENT_QUOTES) ?></td>
                                         <td><?= htmlspecialchars(shop_order_preview_format_idr((float) $row['rate']), ENT_QUOTES) ?></td>
+                                        <td><?= htmlspecialchars(rtrim(rtrim(number_format((float) $row['quantity'], 2, '.', ','), '0'), '.'), ENT_QUOTES) ?></td>
                                         <td><?= htmlspecialchars(shop_order_preview_format_idr((float) $row['amount']), ENT_QUOTES) ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
 
-                        <?php if ($isLast): ?>
                         <div class="inv-summary-wrap">
                             <div class="inv-summary-row">
                                 <span>Subtotal</span>
                                 <span><?= htmlspecialchars(shop_order_preview_format_idr($subtotal), ENT_QUOTES) ?></span>
                             </div>
-                            <?php if ($productDiscount > 0): ?>
-                            <div class="inv-summary-row">
-                                <span>Product Discount</span>
-                                <span><?= htmlspecialchars('- ' . shop_order_preview_format_idr($productDiscount), ENT_QUOTES) ?></span>
-                            </div>
-                            <?php endif; ?>
-                            <?php if ($referralDiscount > 0): ?>
-                            <div class="inv-summary-row">
-                                <span>Referral Discount</span>
-                                <span><?= htmlspecialchars('- ' . shop_order_preview_format_idr($referralDiscount), ENT_QUOTES) ?></span>
-                            </div>
-                            <?php endif; ?>
-                            <?php if ($shippingCost > 0): ?>
                             <div class="inv-summary-row">
                                 <span>Shipping</span>
-                                <span><?= htmlspecialchars(shop_order_preview_format_idr($shippingCost), ENT_QUOTES) ?></span>
+                                <span><?= htmlspecialchars($shippingCost > 0 ? shop_order_preview_format_idr($shippingCost) : 'IDR 0.00', ENT_QUOTES) ?></span>
                             </div>
-                            <?php endif; ?>
-                            <?php if ($shippingDiscount > 0): ?>
                             <div class="inv-summary-row">
-                                <span>Shipping Discount</span>
-                                <span><?= htmlspecialchars('- ' . shop_order_preview_format_idr($shippingDiscount), ENT_QUOTES) ?></span>
+                                <span>Discount</span>
+                                <span><?= htmlspecialchars($discountCost > 0 ? '-' . shop_order_preview_format_idr($discountCost) : 'IDR 0.00', ENT_QUOTES) ?></span>
                             </div>
-                            <?php endif; ?>
                             <div class="inv-summary-row inv-summary-row--grand">
-                                <span>Grand Total</span>
+                                <span>TOTAL</span>
                                 <span><?= htmlspecialchars(shop_order_preview_format_idr($total), ENT_QUOTES) ?></span>
                             </div>
                         </div>
-                        <?php endif; ?>
 
                         <div class="inv-footer-spacer"></div>
-                        <div class="inv-rule"></div>
-
                         <footer class="inv-footer">
-                            <div class="inv-footer-notes">
-                                <strong><?= htmlspecialchars($notesHeader, ENT_QUOTES) ?></strong>
-                                <?php foreach ($notesParagraphs as $paragraph): ?>
-                                <p><?= htmlspecialchars($paragraph, ENT_QUOTES) ?></p>
-                                <?php endforeach; ?>
+                            <div class="inv-footer-left">
+                                <p class="inv-footer-tagline">Track Proven. Daily Confidence</p>
+                                <p class="inv-footer-link">www.brix-performance.com</p>
                             </div>
-                            <div class="inv-footer-thanks">
-                                <p class="inv-footer-lead"><?= nl2br(htmlspecialchars($closingHeader, ENT_QUOTES)) ?></p>
-                                <?php foreach ($closingParagraphs as $paragraph): ?>
-                                <p><?= htmlspecialchars($paragraph, ENT_QUOTES) ?></p>
-                                <?php endforeach; ?>
+                            <div class="inv-footer-right">
+                                <p class="inv-footer-note"><?= htmlspecialchars($fixedFooterNote, ENT_QUOTES) ?></p>
+                                <p class="inv-footer-note"><?= htmlspecialchars($fixedFooterSubNote, ENT_QUOTES) ?></p>
+                                <div class="inv-footer-signature">
+                                    <span class="inv-footer-signature-rule"></span>
+                                    <span class="inv-footer-signature-name">BRIX Performance</span>
+                                </div>
                             </div>
                         </footer>
-                        <div class="inv-rule"></div>
                     </section>
                 <?php endforeach; ?>
             </div>

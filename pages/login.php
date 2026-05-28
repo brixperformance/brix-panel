@@ -17,7 +17,7 @@ $demoMode = !is_file(dirname(__DIR__) . '/.env');
 	<meta charset="utf-8"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 	<meta http-equiv="X-UA-Compatible" content="ie=edge"/>
-	<title>Login - Brill Admin</title>
+	<title>Login - BRIX Admin</title>
 	<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
 	<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
 	<link href="/assets/dist/css/tabler.css" rel="stylesheet"/>
@@ -38,7 +38,7 @@ $demoMode = !is_file(dirname(__DIR__) . '/.env');
 			<div class="text-center mb-4">
 				<a href="/login" class="navbar-brand navbar-brand-autodark">
 					<span class="avatar avatar-lg bg-primary-lt me-3">B</span>
-					<span class="fs-1 fw-bold tracking-tight text-body">Brill Admin</span>
+					<span class="fs-1 fw-bold tracking-tight text-body">BRIX Admin</span>
 				</a>
 			</div>
 
@@ -81,7 +81,7 @@ $demoMode = !is_file(dirname(__DIR__) . '/.env');
 			</div>
 
 			<div class="text-center text-secondary mt-3">
-				Admin access for Brill Data Hub and Brill Invoicing.
+				Admin access for BRIX Data Hub and BRIX Shop.
 			</div>
 		</div>
 	</div>

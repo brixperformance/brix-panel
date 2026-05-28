@@ -461,7 +461,7 @@ function shop_pricing_rule_form(
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
-    <title>Shop Pricing - Brill</title>
+    <title>Shop Pricing - BRIX</title>
     <link rel="icon" href="/favicon.ico" type="image/x-icon"/>
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
     <link href="/assets/dist/css/tabler.css" rel="stylesheet"/>
@@ -485,7 +485,7 @@ function shop_pricing_rule_form(
                 <div class="container-xl">
                     <div class="row g-2 align-items-center">
                         <div class="col">
-                            <div class="page-pretitle">Brill Shop</div>
+                            <div class="page-pretitle">BRIX Shop</div>
                             <h1 class="page-title">Product Pricing</h1>
                         </div>
                     </div>

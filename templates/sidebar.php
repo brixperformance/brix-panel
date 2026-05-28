@@ -8,17 +8,8 @@ $currentPath = $currentPath === '' ? '/dashboard' : $currentPath;
 
 $masterRoutes = [
 	'/master-brand',
-	'/master-pricelist',
-	'/master-dealer',
-	'/master-island',
-	'/master-province',
-];
-
-$invoicingRoutes = [
-	'/invoice-generator',
-	'/invoice-log-directory',
-	'/invoice-log',
-	'/invoice-log/preview',
+	'/master-car',
+	'/master-product',
 ];
 
 $shopRoutes = [
@@ -29,37 +20,23 @@ $shopRoutes = [
 ];
 
 $isMasterOpen    = in_array($currentPath, $masterRoutes, true);
-$isInvoicingOpen = in_array($currentPath, $invoicingRoutes, true);
 $isShopOpen      = in_array($currentPath, $shopRoutes, true);
 
 $menuGroups = [
 	[
 		'id' => 'sidebar-data-hub',
-		'title' => 'Brill Data Hub',
+		'title' => 'BRIX Data Hub',
 		'icon' => 'database',
 		'open' => $isMasterOpen,
 		'items' => [
 			['href' => '/master-brand', 'label' => 'Master Brand'],
-			['href' => '/master-pricelist', 'label' => 'Master Pricelist'],
-			['href' => '/master-dealer', 'label' => 'Master Dealer'],
-			['href' => '/master-island', 'label' => 'Master Island'],
-			['href' => '/master-province', 'label' => 'Master Province'],
-		],
-	],
-	[
-		'id' => 'sidebar-invoicing',
-		'title' => 'Brill Invoicing',
-		'icon' => 'receipt',
-		'open' => $isInvoicingOpen,
-		'items' => [
-			['href' => '/invoice-generator', 'label' => 'Invoice Generator'],
-			['href' => '/invoice-log-directory', 'label' => 'Invoice Directory'],
-			['href' => '/invoice-log', 'label' => 'Invoice Log'],
+			['href' => '/master-car', 'label' => 'Master Car'],
+			['href' => '/master-product', 'label' => 'Master Product'],
 		],
 	],
 	[
 		'id' => 'sidebar-shop',
-		'title' => 'Brill Shop',
+		'title' => 'BRIX Shop',
 		'icon' => 'shop',
 		'open' => $isShopOpen,
 		'items' => [
@@ -97,10 +74,10 @@ function sidebar_icon(string $name): string
 		</button>
 
 		<div class="navbar-brand navbar-brand-autodark">
-			<a href="/dashboard" aria-label="Brill Dashboard" class="sidebar-brand-link text-reset text-decoration-none">
+			<a href="/dashboard" aria-label="BRIX Dashboard" class="sidebar-brand-link text-reset text-decoration-none">
 				<img
-					src="/assets/images/logos/logo-brill.png"
-					alt="Brill"
+					src="/assets/images/logos/logo-brix.svg"
+					alt="BRIX"
 					class="sidebar-brand-logo"
 				>
 			</a>

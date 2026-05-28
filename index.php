@@ -177,17 +177,8 @@ $routes = [
 		'/login' => 'login_form',
 		'/dashboard' => 'dashboard',
 		'/master-brand' => 'master_brand',
-		'/master-pricelist' => 'master_pricelist',
-		'/master-dealer' => 'master_dealer',
-		'/master-dealer/read' => 'master_dealer_read',
-		'/master-island' => 'master_island',
-		'/master-province' => 'master_province',
-		'/invoice-generator' => 'invoice_generator',
-		'/invoice-log-directory' => 'invoice_log_directory',
-		'/invoice-log' => 'invoice_log',
-		'/invoice-log/preview' => 'invoice_log_preview',
-		'/api/invoice-item-options' => 'api_invoice_item_options',
-		'/api/invoice-detail' => 'api_invoice_detail',
+		'/master-car' => 'master_car',
+		'/master-product' => 'master_product',
 		'/api/address-search' => 'api_address_search',
 		'/api/address-options' => 'api_address_options',
 		'/logout' => 'logout',
@@ -201,23 +192,9 @@ $routes = [
 		'/login' => 'login_action',
 		'/logout' => 'logout',
 		'/keepalive' => 'keepalive',
-		'/master-brand/create' => 'master_brand_create',
-		'/master-brand/update' => 'master_brand_update',
-		'/master-pricelist/create' => 'master_pricelist_create',
-		'/master-pricelist/update' => 'master_pricelist_update',
-		'/master-pricelist/export' => 'master_pricelist_export',
-		'/master-dealer/create' => 'master_dealer_create',
-		'/master-dealer/update' => 'master_dealer_update',
-		'/master-dealer/read' => 'master_dealer_read',
-		'/master-island/create' => 'master_island_create',
-		'/master-island/update' => 'master_island_update',
-		'/master-island/delete' => 'master_island_delete',
-		'/master-province/create' => 'master_province_create',
-		'/master-province/update' => 'master_province_update',
-		'/master-province/delete' => 'master_province_delete',
-		'/invoice-generator/preview' => 'invoice_preview',
-		'/invoice-log/delete' => 'invoice_log_delete',
-		'/invoice-log/update' => 'invoice_log_update',
+		'/master-brand' => 'master_brand',
+		'/master-car' => 'master_car',
+		'/master-product' => 'master_product',
 		'/api/shipping-quote' => 'api_shipping_quote',
 		'/shop/pricing' => 'shop_pricing',
 		'/shop/referrals' => 'shop_referrals',
@@ -256,86 +233,11 @@ switch ($action) {
 	case 'master_brand':
 		require BASE_PATH . '/pages/master-brand.php';
 		break;
-	case 'master_brand_create':
-		run_controller('/application/controllers/master-brand/CreateController.php');
+	case 'master_car':
+		require BASE_PATH . '/pages/master-car.php';
 		break;
-	case 'master_brand_update':
-		run_controller('/application/controllers/master-brand/UpdateController.php');
-		break;
-	case 'master_pricelist':
-		require BASE_PATH . '/pages/master-pricelist.php';
-		break;
-	case 'master_pricelist_create':
-		run_controller('/application/controllers/master-pricelist/CreateController.php');
-		break;
-	case 'master_pricelist_update':
-		run_controller('/application/controllers/master-pricelist/UpdateController.php');
-		break;
-	case 'master_pricelist_export':
-		run_controller('/application/controllers/master-pricelist/ExportController.php');
-		break;
-	case 'master_dealer':
-		require BASE_PATH . '/pages/master-dealer.php';
-		break;
-	case 'master_dealer_read':
-		run_controller('/application/controllers/master-dealer/ReadController.php');
-		break;
-	case 'master_dealer_create':
-		run_controller('/application/controllers/master-dealer/CreateController.php');
-		break;
-	case 'master_dealer_update':
-		run_controller('/application/controllers/master-dealer/UpdateController.php');
-		break;
-	case 'master_island':
-		require BASE_PATH . '/pages/master-island.php';
-		break;
-	case 'master_island_create':
-		run_controller('/application/controllers/master-island/CreateController.php');
-		break;
-	case 'master_island_update':
-		run_controller('/application/controllers/master-island/UpdateController.php');
-		break;
-	case 'master_island_delete':
-		run_controller('/application/controllers/master-island/DeleteController.php');
-		break;
-	case 'master_province':
-		require BASE_PATH . '/pages/master-province.php';
-		break;
-	case 'master_province_create':
-		run_controller('/application/controllers/master-province/CreateController.php');
-		break;
-	case 'master_province_update':
-		run_controller('/application/controllers/master-province/UpdateController.php');
-		break;
-	case 'master_province_delete':
-		run_controller('/application/controllers/master-province/DeleteController.php');
-		break;
-	case 'invoice_generator':
-		require BASE_PATH . '/pages/invoice-generator.php';
-		break;
-	case 'invoice_preview':
-		require BASE_PATH . '/pages/invoice-preview.php';
-		break;
-	case 'invoice_log_directory':
-		require BASE_PATH . '/pages/invoice-log-directory.php';
-		break;
-	case 'invoice_log':
-		require BASE_PATH . '/pages/invoice-log.php';
-		break;
-	case 'invoice_log_preview':
-		require BASE_PATH . '/pages/invoice-preview.php';
-		break;
-	case 'invoice_log_delete':
-		run_controller('/application/controllers/log-invoice/DeleteController.php');
-		break;
-	case 'invoice_log_update':
-		run_controller('/application/controllers/log-invoice/UpdateController.php');
-		break;
-	case 'api_invoice_item_options':
-		run_controller('/application/controllers/InvoiceItemOptionsController.php');
-		break;
-	case 'api_invoice_detail':
-		run_controller('/application/controllers/log-invoice/DetailController.php');
+	case 'master_product':
+		require BASE_PATH . '/pages/master-product.php';
 		break;
 	case 'api_address_search':
 		run_controller('/application/controllers/shipping/AddressSearchController.php');

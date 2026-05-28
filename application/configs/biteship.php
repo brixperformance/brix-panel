@@ -7,7 +7,7 @@ function get_biteship_config(): array
     $apiKey           = trim((string) (getenv('BITESHIP_API_KEY')              ?: ''));
     $baseUrl          = rtrim(trim((string) (getenv('BITESHIP_BASE_URL')       ?: 'https://api.biteship.com')), '/');
     $originAreaId     = trim((string) (getenv('BITESHIP_ORIGIN_AREA_ID')       ?: ''));
-    $originLabel      = trim((string) (getenv('BITESHIP_ORIGIN_LABEL')         ?: 'Brill Hepa Filter'));
+    $originLabel      = trim((string) (getenv('BITESHIP_ORIGIN_LABEL')         ?: 'BRIX Performance'));
     $couriers         = trim((string) (getenv('BITESHIP_COURIERS')             ?: 'jne,jnt'));
     $originLat        = (float) (getenv('BITESHIP_ORIGIN_LAT')                 ?: '0');
     $originLng        = (float) (getenv('BITESHIP_ORIGIN_LNG')                 ?: '0');

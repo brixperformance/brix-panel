@@ -23,6 +23,10 @@
 	padding: 1.5rem;
 }
 
+.modal-content.modal-content-lg {
+	width: min(100%, 56rem);
+}
+
 .modal-content h3 {
 	margin: 0 0 1.25rem;
 	font-size: 1.125rem;
@@ -50,6 +54,7 @@
 .form-row input[type="date"],
 .form-row input[type="number"],
 .form-row input[type="password"],
+.form-row input[type="search"],
 .form-row select,
 .form-row textarea {
 	width: 100%;
@@ -59,6 +64,14 @@
 	color: var(--tblr-body-color);
 	padding: 0.625rem 0.75rem;
 	font: inherit;
+}
+
+.fitment-search {
+	margin-bottom: 0.5rem;
+}
+
+.fitment-select {
+	min-height: 12rem;
 }
 
 .form-row input[disabled],

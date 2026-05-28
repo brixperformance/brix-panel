@@ -18,8 +18,7 @@ class MasterPricelistView
             FROM 
                 ms_admins AS msa 
             WHERE 
-                msa.msa_type = 'A'
-                AND msa.msa_username = ?
+                msa.msa_username = ?
         ";
         return $this->exec->executeSelect($sql, [$username], 'row');
     }

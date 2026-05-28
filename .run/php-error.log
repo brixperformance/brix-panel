@@ -1,0 +1,11 @@
+[28-May-2026 13:57:41 Asia/Jakarta] [execute_select] SQLSTATE[42S22]: Column not found: 1054 Unknown column 'msa.msa_type' in 'WHERE' in D:\random\brix-performance\brix-panel\application\models\Execute.php:76
+[28-May-2026 13:57:45 Asia/Jakarta] [execute_select] SQLSTATE[42S22]: Column not found: 1054 Unknown column 'msa.msa_type' in 'WHERE' in D:\random\brix-performance\brix-panel\application\models\Execute.php:76
+[28-May-2026 13:57:55 Asia/Jakarta] [execute_select] SQLSTATE[42S22]: Column not found: 1054 Unknown column 'msa.msa_type' in 'WHERE' in D:\random\brix-performance\brix-panel\application\models\Execute.php:76
+[28-May-2026 13:58:04 Asia/Jakarta] [execute_select] SQLSTATE[42S22]: Column not found: 1054 Unknown column 'msa.msa_type' in 'WHERE' in D:\random\brix-performance\brix-panel\application\models\Execute.php:76
+[28-May-2026 13:58:25 Asia/Jakarta] [execute_select] SQLSTATE[42S22]: Column not found: 1054 Unknown column 'msa.msa_type' in 'WHERE' in D:\random\brix-performance\brix-panel\application\models\Execute.php:76
+[28-May-2026 13:59:47 Asia/Jakarta] [execute_select] SQLSTATE[42S22]: Column not found: 1054 Unknown column 'msa.msa_type' in 'WHERE' in D:\random\brix-performance\brix-panel\application\models\Execute.php:76
+[28-May-2026 13:59:53 Asia/Jakarta] [execute_select] SQLSTATE[42S22]: Column not found: 1054 Unknown column 'msa.msa_type' in 'WHERE' in D:\random\brix-performance\brix-panel\application\models\Execute.php:76
+[28-May-2026 13:59:59 Asia/Jakarta] [execute_select] SQLSTATE[42S22]: Column not found: 1054 Unknown column 'msa.msa_type' in 'WHERE' in D:\random\brix-performance\brix-panel\application\models\Execute.php:76
+[28-May-2026 14:00:49 Asia/Jakarta] [execute_select] SQLSTATE[42S22]: Column not found: 1054 Unknown column 'msa.msa_type' in 'WHERE' in D:\random\brix-performance\brix-panel\application\models\Execute.php:76
+[28-May-2026 14:02:49 Asia/Jakarta] [execute_select] SQLSTATE[42S22]: Column not found: 1054 Unknown column 'msa.msa_type' in 'WHERE' in D:\random\brix-performance\brix-panel\application\models\Execute.php:76
+[28-May-2026 14:02:55 Asia/Jakarta] [execute_select] SQLSTATE[42S22]: Column not found: 1054 Unknown column 'msa.msa_type' in 'WHERE' in D:\random\brix-performance\brix-panel\application\models\Execute.php:76

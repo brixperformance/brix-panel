@@ -91,7 +91,7 @@ $tableEmptyMessage = 'No islands found.';
 	<meta charset="utf-8"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 	<meta http-equiv="X-UA-Compatible" content="ie=edge"/>
-	<title>Master Island - Brill</title>
+	<title>Master Island - BRIX</title>
 	<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
 	<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
 	<link href="/assets/dist/css/tabler.css" rel="stylesheet"/>
@@ -112,7 +112,7 @@ $tableEmptyMessage = 'No islands found.';
 	<div class="page">
 		<?php include __DIR__ . '/../templates/sidebar.php'; ?>
 		<div class="page-wrapper">
-			<div class="page-header d-print-none"><div class="container-xl"><div class="row g-2 align-items-center"><div class="col"><div class="page-pretitle">Brill Data Hub</div><h1 class="page-title">Master Island</h1></div></div></div></div>
+			<div class="page-header d-print-none"><div class="container-xl"><div class="row g-2 align-items-center"><div class="col"><div class="page-pretitle">BRIX Data Hub</div><h1 class="page-title">Master Island</h1></div></div></div></div>
 			<main class="page-body"><div class="container-xl"><div class="row row-cards"><div class="col-12"><?php include __DIR__ . '/../templates/data-hub-table.php'; ?></div></div></div></main>
 		</div>
 	</div>

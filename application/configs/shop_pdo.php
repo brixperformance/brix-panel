@@ -26,6 +26,7 @@ function get_shop_pdo(): PDO
     ];
 
     $pdo = new PDO($dsn, $user, $pass, $options);
+    $pdo->exec("SET time_zone = '+07:00'");
 
     return $pdo;
 }

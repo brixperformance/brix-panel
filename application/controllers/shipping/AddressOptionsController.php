@@ -178,7 +178,7 @@ function find_region_province(string $provinceCode): ?array
 
 function biteship_area_cache_path(string $query): string
 {
-    return sys_get_temp_dir() . '/brill-biteship-area-' . sha1($query) . '.json';
+    return sys_get_temp_dir() . '/brix-biteship-area-' . sha1($query) . '.json';
 }
 
 function get_biteship_areas_for_district(string $districtName, string $regencyName, string $provinceName): array
