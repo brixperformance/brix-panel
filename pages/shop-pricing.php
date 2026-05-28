@@ -246,7 +246,7 @@ if ($pdo !== null && product_pricing_table_exists($pdo)) {
         $filterWhere  = [];
 
         if ($query !== '') {
-            $filterWhere[] = '(p.mpr_title LIKE :q_title OR p.mpr_sku LIKE :q_sku OR p.mpr_vehicle_text LIKE :q_vehicle)';
+            $filterWhere[] = '(p.mpr_title LIKE :q_title OR p.mpr_sku LIKE :q_sku OR p.mpr_fitment_sizing LIKE :q_vehicle)';
             $like = '%' . $query . '%';
             $filterParams[':q_title']   = $like;
             $filterParams[':q_sku']     = $like;
@@ -274,8 +274,8 @@ if ($pdo !== null && product_pricing_table_exists($pdo)) {
         $offset = ($pageNum - 1) * $perPage;
 
         $prodStmt = $pdo->prepare("
-            SELECT p.mpr_id AS id, p.mpr_title AS title, p.mpr_slug AS slug, p.mpr_price AS price,
-                   p.mpr_sku AS sku, p.mpr_vehicle_text AS vehicle_text,
+            SELECT p.mpr_id AS id, p.mpr_title AS title, p.mpr_price AS price,
+                   p.mpr_sku AS sku, p.mpr_fitment_sizing AS vehicle_text,
                    COALESCE(pt.mpt_code, '') AS type_code, COALESCE(pt.mpt_name, '') AS type_name
             FROM ms_products p
             LEFT JOIN ms_product_types pt ON pt.mpt_id = p.mpr_mpt_id
@@ -316,7 +316,7 @@ if ($pdo !== null && product_pricing_table_exists($pdo)) {
 
         $allProdStmt = $pdo->prepare("
             SELECT p.mpr_id AS id, p.mpr_title AS title, p.mpr_price AS price,
-                   p.mpr_sku AS sku, p.mpr_vehicle_text AS vehicle_text,
+                   p.mpr_sku AS sku, p.mpr_fitment_sizing AS vehicle_text,
                    COALESCE(pt.mpt_code, '') AS type_code, COALESCE(pt.mpt_name, '') AS type_name
             FROM ms_products p LEFT JOIN ms_product_types pt ON pt.mpt_id = p.mpr_mpt_id
             ORDER BY p.mpr_title ASC, p.mpr_id DESC
