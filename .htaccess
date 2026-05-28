@@ -1,0 +1,55 @@
+Options +FollowSymLinks -Indexes
+
+RewriteEngine On
+RewriteBase /
+
+# --- Force HTTPS (Hostinger uses reverse proxy, so check X-Forwarded-Proto) ---
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+#############################################
+# --- LEGACY ENDPOINTS -> PRETTY ROUTES --- #
+#############################################
+RewriteRule ^login\.php$                                                        /login                      [R=301,L]
+RewriteRule ^application/controllers/LogoutController\.php$                     /logout                     [R=307,L]
+RewriteRule ^application/controllers/AuthController\.php$                       /login                      [R=307,L]
+RewriteRule ^application/controllers/KeepAlive\.php$                            /keepalive                  [R=307,L]
+
+# DASHBOARD
+RewriteRule ^dashboard\.php$                                                    /dashboard                  [R=301,L]
+
+# INVOICE GENERATOR
+RewriteRule ^invoice-generator\.php$                                            /invoice-generator          [R=301,L]
+RewriteRule ^invoice-log\.php$                                                  /invoice-log                [R=301,L]
+
+# MASTER PRICELIST
+RewriteRule ^master-pricelist\.php$                                             /master-pricelist           [R=301,L]
+RewriteRule ^application/controllers/master-pricelist/CreateController\.php$    /master-pricelist/create    [R=307,L]
+RewriteRule ^application/controllers/master-pricelist/UpdateController\.php$    /master-pricelist/update    [R=307,L]
+
+# MASTER BRAND
+RewriteRule ^master-brand\.php$                                                 /master-brand               [R=301,L]
+RewriteRule ^application/controllers/master-brand/CreateController\.php$        /master-brand/create        [R=307,L]
+RewriteRule ^application/controllers/master-brand/UpdateController\.php$        /master-brand/update        [R=307,L]
+
+# MASTER DEALER
+RewriteRule ^master-dealer\.php$                                                /master-dealer              [R=301,L]
+RewriteRule ^application/controllers/master-dealer/ReadController\.php$         /master-dealer/read         [R=307,L]
+RewriteRule ^application/controllers/master-dealer/CreateController\.php$       /master-dealer/create       [R=307,L]
+RewriteRule ^application/controllers/master-dealer/UpdateController\.php$       /master-dealer/update       [R=307,L]
+
+# --- Block .dev direct access ---
+RewriteRule ^\.dev - [F,L]
+
+# --- Block internal code/sensitive files ---
+RewriteRule ^application/ - [F,L]
+RewriteRule ^(composer\.json|composer\.lock|\.env|router\.php|insert-admin\.php)$ - [F,L]
+
+# --- Serve existing files/directories as-is (assets, etc.) ---
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule . - [L]
+
+# --- Everything else -> front controller ---
+RewriteRule . index.php [L]

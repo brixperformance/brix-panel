@@ -1,0 +1,76 @@
+@import url('https://rsms.me/inter/inter.css');
+
+body {
+	font-family: 'Inter', sans-serif;
+}
+
+.tracking-tight {
+	letter-spacing: -0.02em;
+}
+
+.sidebar-brand-link {
+	display: inline-flex;
+	align-items: center;
+}
+
+.sidebar-brand-logo {
+	display: block;
+	height: 2.25rem;
+	width: auto;
+	max-width: 100%;
+	object-fit: contain;
+	filter: brightness(0) invert(1);
+}
+
+.card-gradient {
+	background:
+		radial-gradient(circle at top right, rgba(255, 255, 255, 0.35), transparent 26%),
+		linear-gradient(135deg, #eaf2ff 0%, #dce9ff 100%);
+	border: 1px solid rgba(6, 111, 209, 0.14);
+}
+
+.card-gradient .card-body {
+	min-height: 100%;
+}
+
+.dropdown-menu-columns {
+	min-width: 100%;
+}
+
+.navbar-vertical .dropdown-menu {
+	position: static;
+	float: none;
+	background: transparent;
+	border: 0;
+	box-shadow: none;
+	padding: 0.25rem 0 0.5rem 3rem;
+}
+
+.navbar-vertical .dropdown-item {
+	color: rgba(255, 255, 255, 0.72);
+	border-radius: var(--tblr-border-radius);
+	padding-left: 0;
+}
+
+.navbar-vertical .dropdown-item:hover,
+.navbar-vertical .dropdown-item.active {
+	color: #fff;
+	background: transparent;
+}
+
+.card-link-pop {
+	transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.card-link-pop:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 1rem 2rem rgba(15, 23, 42, 0.08);
+}
+
+@media (max-width: 991.98px) {
+	.navbar-vertical.navbar-expand-lg {
+		position: sticky;
+		top: 0;
+		z-index: 1030;
+	}
+}

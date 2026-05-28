@@ -1,0 +1,49 @@
+.card-table .card-header {
+	padding-top: 1rem;
+	padding-bottom: 1rem;
+}
+
+.card-table .table-responsive {
+	border-top: 1px solid var(--tblr-border-color);
+}
+
+.card-table .table > :not(caption) > * > th {
+	font-size: 0.75rem;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+	color: var(--tblr-secondary);
+}
+
+.card-table .table > :not(caption) > * > th,
+.card-table .table > :not(caption) > * > td {
+	padding-top: 0.9rem;
+	padding-bottom: 0.9rem;
+	vertical-align: middle;
+}
+
+.card-table .table tbody tr:hover {
+	background: rgba(6, 111, 209, 0.03);
+}
+
+.card-table .table tbody tr:last-child > * {
+	border-bottom-width: 0;
+}
+
+.card-table .table a {
+	text-decoration: none;
+}
+
+.card-table .table code {
+	font-size: 0.8125rem;
+	background: var(--tblr-bg-surface-secondary);
+	border-radius: 999px;
+	padding: 0.25rem 0.5rem;
+	color: var(--tblr-secondary);
+}
+
+.card-table .avatar img {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+}
