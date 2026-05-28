@@ -16,7 +16,13 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8080/shop/pricing)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8080/shop/referrals)",
       "Bash(taskkill /F /IM php.exe)",
-      "Bash(php -r ' *)"
+      "Bash(php -r ' *)",
+      "Bash(git filter-branch *)",
+      "Bash(git stash *)",
+      "Bash(FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch --force --index-filter \"git rm --cached --ignore-unmatch -r .dev/\" --prune-empty --tag-name-filter cat -- --all)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)"
     ]
   }
 }
