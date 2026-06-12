@@ -9,7 +9,14 @@ $currentPath = $currentPath === '' ? '/dashboard' : $currentPath;
 $masterRoutes = [
 	'/master-brand',
 	'/master-car',
+	'/master-distributor',
 	'/master-product',
+];
+
+$writerRoutes = [
+	'/master-article',
+	'/master-article/create',
+	'/master-article/update',
 ];
 
 $shopRoutes = [
@@ -20,6 +27,7 @@ $shopRoutes = [
 ];
 
 $isMasterOpen    = in_array($currentPath, $masterRoutes, true);
+$isWriterOpen    = in_array($currentPath, $writerRoutes, true);
 $isShopOpen      = in_array($currentPath, $shopRoutes, true);
 
 $menuGroups = [
@@ -31,7 +39,17 @@ $menuGroups = [
 		'items' => [
 			['href' => '/master-brand', 'label' => 'Master Brand'],
 			['href' => '/master-car', 'label' => 'Master Car'],
+			['href' => '/master-distributor', 'label' => 'Master Distributor'],
 			['href' => '/master-product', 'label' => 'Master Product'],
+		],
+	],
+	[
+		'id' => 'sidebar-writer',
+		'title' => 'BRIX Writer',
+		'icon' => 'receipt',
+		'open' => $isWriterOpen,
+		'items' => [
+			['href' => '/master-article', 'label' => 'Master Article'],
 		],
 	],
 	[

@@ -30,7 +30,7 @@ $demoMode = !is_file(dirname(__DIR__) . '/.env');
 	<link href="/preview/css/demo.css" rel="stylesheet"/>
 	<link href="/assets/css/dashboard.css" rel="stylesheet"/>
 </head>
-<body class="d-flex flex-column bg-azure-lt">
+<body class="d-flex flex-column login-shell">
 	<script src="/assets/dist/js/tabler-theme.js"></script>
 
 	<div class="page page-center">

@@ -541,7 +541,7 @@ $statusUsageBadge = static function (string $status): string {
                     </label>
                 </div>
 
-                <div class="card bg-light border-0 mb-3">
+                <div class="card card-soft-dark border-0 mb-3">
                     <div class="card-body">
                         <h5 class="card-title mb-2">Product Benefit</h5>
                         <div class="mb-2">
@@ -563,7 +563,7 @@ $statusUsageBadge = static function (string $status): string {
                     </div>
                 </div>
 
-                <div class="card bg-light border-0">
+                <div class="card card-soft-dark border-0">
                     <div class="card-body">
                         <h5 class="card-title mb-2">Shipping Benefit</h5>
                         <div class="mb-2">
@@ -682,7 +682,7 @@ $statusUsageBadge = static function (string $status): string {
                         </div>
                         <div class="row g-2">
                             <div class="col-4">
-                                <div class="card bg-light border-0">
+                                <div class="card card-soft-dark border-0">
                                     <div class="card-body py-2 px-3 text-center">
                                         <div class="text-secondary small">Max</div>
                                         <div class="fw-medium"><?= number_format((int) $ref['max_usage_total'], 0, ',', '.') ?></div>
@@ -690,7 +690,7 @@ $statusUsageBadge = static function (string $status): string {
                                 </div>
                             </div>
                             <div class="col-4">
-                                <div class="card bg-light border-0">
+                                <div class="card card-soft-dark border-0">
                                     <div class="card-body py-2 px-3 text-center">
                                         <div class="text-secondary small">Used</div>
                                         <div class="fw-medium"><?= number_format((int) $ref['used_count'], 0, ',', '.') ?></div>
@@ -698,7 +698,7 @@ $statusUsageBadge = static function (string $status): string {
                                 </div>
                             </div>
                             <div class="col-4">
-                                <div class="card bg-light border-0">
+                                <div class="card card-soft-dark border-0">
                                     <div class="card-body py-2 px-3 text-center">
                                         <div class="text-secondary small">Logs</div>
                                         <div class="fw-medium"><?= (int) $ref['used_logs'] ?>/<?= (int) $ref['total_logs'] ?></div>

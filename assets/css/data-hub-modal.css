@@ -16,8 +16,8 @@
 
 .modal-content {
 	width: min(100%, 32rem);
-	background: #fff;
-	border: 1px solid var(--tblr-border-color);
+	background: var(--brix-surface-raised);
+	border: 1px solid var(--brix-border-strong);
 	border-radius: var(--tblr-border-radius-xl);
 	box-shadow: 0 1.5rem 3rem rgba(15, 23, 42, 0.18);
 	padding: 1.5rem;
@@ -58,9 +58,9 @@
 .form-row select,
 .form-row textarea {
 	width: 100%;
-	border: 1px solid var(--tblr-border-color);
+	border: 1px solid var(--brix-border-strong);
 	border-radius: var(--tblr-border-radius);
-	background: #fff;
+	background: var(--brix-surface-soft);
 	color: var(--tblr-body-color);
 	padding: 0.625rem 0.75rem;
 	font: inherit;
@@ -136,7 +136,7 @@
 	position: absolute;
 	inset: 0;
 	border-radius: 999px;
-	background: #cbd5e1;
+	background: var(--brix-switch-track);
 	transition: 0.2s ease;
 	cursor: pointer;
 }
@@ -179,8 +179,8 @@
 	display: none;
 	max-height: 15rem;
 	overflow-y: auto;
-	background: #fff;
-	border: 1px solid var(--tblr-border-color);
+	background: var(--brix-surface-raised);
+	border: 1px solid var(--brix-border-strong);
 	border-radius: var(--tblr-border-radius);
 	box-shadow: 0 1rem 2rem rgba(15, 23, 42, 0.12);
 }

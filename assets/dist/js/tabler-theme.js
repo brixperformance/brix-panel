@@ -3,7 +3,7 @@
 })((function() {
   "use strict";
   const themeConfig = {
-    "theme": "light",
+    "theme": "dark",
     "theme-base": "gray",
     "theme-font": "sans-serif",
     "theme-primary": "blue",
@@ -13,6 +13,11 @@
     get: (searchParams, prop) => searchParams.get(prop)
   });
   for (const key in themeConfig) {
+    if (key === "theme") {
+      localStorage.setItem("tabler-" + key, "dark");
+      document.documentElement.setAttribute("data-bs-" + key, "dark");
+      continue;
+    }
     const param = params[key];
     let selectedValue;
     if (!!param) {

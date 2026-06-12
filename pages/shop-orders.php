@@ -498,7 +498,7 @@ if ($statusFilter !== '') {
 
                         <div class="row g-2 mb-3">
                             <div class="col-4">
-                                <div class="card bg-light border-0">
+                                <div class="card card-soft-dark border-0">
                                     <div class="card-body py-2 px-3 text-center">
                                         <div class="text-secondary small">Subtotal</div>
                                         <div class="fw-medium">IDR<?= number_format((int) ($order['subtotal_amount'] ?? 0), 0, ',', '.') ?></div>
@@ -506,7 +506,7 @@ if ($statusFilter !== '') {
                                 </div>
                             </div>
                             <div class="col-4">
-                                <div class="card bg-light border-0">
+                                <div class="card card-soft-dark border-0">
                                     <div class="card-body py-2 px-3 text-center">
                                         <div class="text-secondary small">Discount</div>
                                         <div class="fw-medium text-danger">-IDR<?= number_format($totalDiscount, 0, ',', '.') ?></div>
@@ -514,7 +514,7 @@ if ($statusFilter !== '') {
                                 </div>
                             </div>
                             <div class="col-4">
-                                <div class="card bg-light border-0">
+                                <div class="card card-soft-dark border-0">
                                     <div class="card-body py-2 px-3 text-center">
                                         <div class="text-secondary small">Grand Total</div>
                                         <div class="fw-medium text-primary">IDR<?= number_format((int) ($order['payable_amount'] ?? 0), 0, ',', '.') ?></div>

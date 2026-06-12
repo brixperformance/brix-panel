@@ -9,3 +9,8 @@
 [28-May-2026 14:00:49 Asia/Jakarta] [execute_select] SQLSTATE[42S22]: Column not found: 1054 Unknown column 'msa.msa_type' in 'WHERE' in D:\random\brix-performance\brix-panel\application\models\Execute.php:76
 [28-May-2026 14:02:49 Asia/Jakarta] [execute_select] SQLSTATE[42S22]: Column not found: 1054 Unknown column 'msa.msa_type' in 'WHERE' in D:\random\brix-performance\brix-panel\application\models\Execute.php:76
 [28-May-2026 14:02:55 Asia/Jakarta] [execute_select] SQLSTATE[42S22]: Column not found: 1054 Unknown column 'msa.msa_type' in 'WHERE' in D:\random\brix-performance\brix-panel\application\models\Execute.php:76
+[12-Jun-2026 12:05:09 Asia/Jakarta] [database_connect] SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it in D:\random\brix-performance\brix-panel\application\models\Execute.php:39
+[12-Jun-2026 13:31:20 Asia/Jakarta] [database_connect] SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it in D:\random\brix-performance\brix-panel\application\models\Execute.php:39
+[12-Jun-2026 13:31:30 Asia/Jakarta] [database_connect] SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it in D:\random\brix-performance\brix-panel\application\models\Execute.php:39
+[12-Jun-2026 13:33:00 Asia/Jakarta] [database_connect] SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it in D:\random\brix-performance\brix-panel\application\models\Execute.php:39
+[12-Jun-2026 13:33:33 Asia/Jakarta] [database_connect] SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it in D:\random\brix-performance\brix-panel\application\models\Execute.php:39

@@ -115,6 +115,7 @@ function try_serve_public_asset(string $requestPath): void
 	$mounts = [
 		'/assets' => BASE_PATH . '/assets',
 		'/preview' => BASE_PATH . '/preview',
+		'/uploads' => BASE_PATH . '/uploads',
 	];
 	$singleFiles = [
 		'/favicon.ico' => BASE_PATH . '/favicon.ico',
@@ -176,8 +177,13 @@ $routes = [
 		'/' => 'home',
 		'/login' => 'login_form',
 		'/dashboard' => 'dashboard',
+		'/master-article' => 'master_article',
+		'/master-article/create' => 'master_article_create',
+		'/master-article/update' => 'master_article_update',
+		'/master-article/next-code' => 'master_article_next_code',
 		'/master-brand' => 'master_brand',
 		'/master-car' => 'master_car',
+		'/master-distributor' => 'master_distributor',
 		'/master-product' => 'master_product',
 		'/api/address-search' => 'api_address_search',
 		'/api/address-options' => 'api_address_options',
@@ -192,8 +198,11 @@ $routes = [
 		'/login' => 'login_action',
 		'/logout' => 'logout',
 		'/keepalive' => 'keepalive',
+		'/master-article/create' => 'master_article_create',
+		'/master-article/update' => 'master_article_update',
 		'/master-brand' => 'master_brand',
 		'/master-car' => 'master_car',
+		'/master-distributor' => 'master_distributor',
 		'/master-product' => 'master_product',
 		'/api/shipping-quote' => 'api_shipping_quote',
 		'/shop/pricing' => 'shop_pricing',
@@ -230,11 +239,26 @@ switch ($action) {
 	case 'dashboard':
 		require BASE_PATH . '/pages/dashboard.php';
 		break;
+	case 'master_article':
+		require BASE_PATH . '/pages/master-article.php';
+		break;
+	case 'master_article_create':
+		require BASE_PATH . '/pages/master-article-create.php';
+		break;
+	case 'master_article_update':
+		require BASE_PATH . '/pages/master-article-update.php';
+		break;
+	case 'master_article_next_code':
+		run_controller('/application/controllers/master-article/NextCodeController.php');
+		break;
 	case 'master_brand':
 		require BASE_PATH . '/pages/master-brand.php';
 		break;
 	case 'master_car':
 		require BASE_PATH . '/pages/master-car.php';
+		break;
+	case 'master_distributor':
+		require BASE_PATH . '/pages/master-distributor.php';
 		break;
 	case 'master_product':
 		require BASE_PATH . '/pages/master-product.php';
