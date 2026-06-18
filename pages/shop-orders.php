@@ -398,7 +398,7 @@ if ($statusFilter !== '') {
                                                             class="btn btn-sm btn-primary"
                                                             data-shop-order-preview
                                                             data-order-id="<?= shop_orders_esc($order['order_id']) ?>">
-                                                            Preview
+                                                            Lihat Invoice
                                                         </button>
                                                         <button type="button"
                                                             class="btn btn-sm btn-outline-secondary"
@@ -451,7 +451,7 @@ if ($statusFilter !== '') {
                             <path d="M7 11l5 5l5 -5" />
                             <path d="M12 4l0 12" />
                         </svg>
-                        Download PDF
+                        Print / Save PDF
                     </button>
                 </div>
             </div>
@@ -579,12 +579,15 @@ if ($statusFilter !== '') {
             const previewButtons = document.querySelectorAll('[data-shop-order-preview]');
             const modalSubtitle = document.getElementById('modal-shop-preview-subtitle');
             const downloadButton = document.getElementById('btn-shop-order-download');
+            const ModalCtor = (typeof tabler !== 'undefined' && tabler.Modal)
+                ? tabler.Modal
+                : ((typeof bootstrap !== 'undefined' && bootstrap.Modal) ? bootstrap.Modal : null);
 
-            if (!previewModalEl || !previewFrame || !previewButtons.length) {
+            if (!previewModalEl || !previewFrame || !previewButtons.length || !ModalCtor) {
                 return;
             }
 
-            const previewModal = new tabler.Modal(previewModalEl);
+            const previewModal = new ModalCtor(previewModalEl);
             let currentOrderId = '';
 
             function openPreviewModal(orderId) {
