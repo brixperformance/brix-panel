@@ -181,11 +181,14 @@ if ($pages === []) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shop Invoice - <?= htmlspecialchars($invoiceNumber, ENT_QUOTES) ?></title>
     <link rel="stylesheet" href="/assets/css/invoice-preview.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
 </head>
 <body>
     <?php if (!$noBar): ?>
     <div class="invoice-toolbar">
-        <button type="button" class="invoice-download-button" id="download-invoice-pdf">Print / Save PDF</button>
+        <button type="button" class="invoice-download-button" id="download-invoice-pdf">Download PDF</button>
     </div>
     <?php endif; ?>
 
@@ -314,6 +317,7 @@ if ($pages === []) {
             const invoicePage = document.querySelector('.invoice-page');
             const scaleWrap = document.getElementById('invoice-scale-wrap');
             const invoicePages = document.getElementById('invoice-pages');
+            const filename = <?= json_encode($pdfFileName, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;
 
             function fitInvoiceForMobile() {
                 if (!invoicePage || !invoicePages || !scaleWrap) return;
@@ -342,19 +346,74 @@ if ($pages === []) {
                 invoicePage.style.minHeight = (invoicePages.offsetHeight * scale) + 'px';
             }
 
-            function downloadPdf() {
+            async function downloadPdf() {
+                if (typeof window.html2pdf === 'undefined') {
+                    window.alert('PDF library failed to load.');
+                    return;
+                }
+
                 if (downloadButton) {
                     downloadButton.disabled = true;
-                    downloadButton.textContent = 'Preparing print dialog...';
+                    downloadButton.textContent = 'Generating PDF...';
                 }
-                window.setTimeout(function () {
-                    window.focus();
-                    window.print();
+
+                try {
+                    const sheets = Array.from(document.querySelectorAll('.invoice-sheet'));
+                    const pxPerMm = 96 / 25.4;
+                    let worker = window.html2pdf();
+
+                    if (sheets.length === 1) {
+                        const pageHeightMm = Math.max(297, Math.ceil(sheets[0].scrollHeight / pxPerMm));
+
+                        await worker
+                            .set({
+                                filename,
+                                margin: 0,
+                                image: { type: 'jpeg', quality: 0.98 },
+                                html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+                                jsPDF: { unit: 'mm', format: [210, pageHeightMm], orientation: 'portrait' }
+                            })
+                            .from(sheets[0])
+                            .save();
+                    } else {
+                        const html2canvasLib = window.html2canvas;
+                        const jsPdfCtor = window.jspdf && window.jspdf.jsPDF;
+
+                        if (!html2canvasLib || !jsPdfCtor) {
+                            window.alert('PDF renderer is unavailable.');
+                            return;
+                        }
+
+                        const pdf = new jsPdfCtor({
+                            unit: 'mm',
+                            format: 'a4',
+                            orientation: 'portrait',
+                        });
+
+                        for (let index = 0; index < sheets.length; index += 1) {
+                            const sheet = sheets[index];
+                            const canvas = await html2canvasLib(sheet, {
+                                scale: 2,
+                                useCORS: true,
+                                backgroundColor: '#ffffff',
+                            });
+                            const imageData = canvas.toDataURL('image/jpeg', 0.98);
+
+                            if (index > 0) {
+                                pdf.addPage('a4', 'portrait');
+                            }
+
+                            pdf.addImage(imageData, 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
+                        }
+
+                        pdf.save(filename);
+                    }
+                } finally {
                     if (downloadButton) {
                         downloadButton.disabled = false;
-                        downloadButton.textContent = 'Print / Save PDF';
+                        downloadButton.textContent = 'Download PDF';
                     }
-                }, 80);
+                }
             }
 
             downloadButton?.addEventListener('click', downloadPdf);

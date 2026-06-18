@@ -44,7 +44,7 @@
 }
 
 /* ── Shipping Area Search ── */
-#modal-invoice-preview {
+#modal-shop-order-preview {
     position: fixed !important;
     inset: 0 !important;
     width: 100vw !important;
@@ -57,35 +57,35 @@
     z-index: 10500 !important;
 }
 
-#modal-invoice-preview.fade:not(.show) {
+#modal-shop-order-preview.fade:not(.show) {
     display: none !important;
 }
 
-#modal-invoice-preview .modal-dialog {
+#modal-shop-order-preview .modal-dialog {
     position: relative !important;
     margin: auto !important;
     transform: none !important;
-    width: calc(85vh * 0.707);
-    max-width: 92vw;
-    max-height: 85vh;
+    width: min(1080px, 94vw);
+    max-width: 94vw;
+    max-height: 90vh;
 }
 
-#modal-invoice-preview .modal-content {
-    max-height: 85vh;
+#modal-shop-order-preview .modal-content {
+    max-height: 90vh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
 }
 
-#modal-invoice-preview .modal-header {
+#modal-shop-order-preview .modal-header {
     padding: 1.25rem 1.5rem;
 }
 
-#modal-invoice-preview .modal-footer {
+#modal-shop-order-preview .modal-footer {
     padding: 1rem 1.5rem;
 }
 
-#modal-invoice-preview .modal-body {
+#modal-shop-order-preview .modal-body {
     padding: 1rem;
     overflow-y: auto;
     flex: 1 1 auto;
@@ -93,7 +93,7 @@
     background: #f1f5f9;
 }
 
-#modal-invoice-preview .modal-body iframe {
+#modal-shop-order-preview .modal-body iframe {
     width: 100%;
     height: 0;
     border: none;

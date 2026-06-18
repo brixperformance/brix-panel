@@ -191,6 +191,7 @@ $routes = [
 		'/shop/dashboard' => 'shop_dashboard',
 		'/shop/orders' => 'shop_orders',
 		'/shop/orders/preview' => 'shop_order_preview',
+		'/shop/orders/download' => 'shop_order_download',
 		'/shop/pricing' => 'shop_pricing',
 		'/shop/referrals' => 'shop_referrals',
 	],
@@ -280,6 +281,9 @@ switch ($action) {
 		break;
 	case 'shop_order_preview':
 		require BASE_PATH . '/pages/shop-order-preview.php';
+		break;
+	case 'shop_order_download':
+		require BASE_PATH . '/pages/shop-order-download.php';
 		break;
 	case 'shop_pricing':
 		require BASE_PATH . '/pages/shop-pricing.php';

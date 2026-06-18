@@ -432,7 +432,7 @@ if ($statusFilter !== '') {
     </div>
 
     <div class="modal modal-blur fade" id="modal-shop-order-preview" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-fullscreen-lg-down modal-xl modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header d-block">
                     <div class="d-flex align-items-center justify-content-between">
@@ -451,7 +451,7 @@ if ($statusFilter !== '') {
                             <path d="M7 11l5 5l5 -5" />
                             <path d="M12 4l0 12" />
                         </svg>
-                        Print / Save PDF
+                        Download PDF
                     </button>
                 </div>
             </div>
@@ -615,13 +615,6 @@ if ($statusFilter !== '') {
                 }
             });
 
-            previewModalEl.addEventListener('shown.bs.modal', function () {
-                const backdrop = document.querySelector('.modal-backdrop');
-                if (backdrop) {
-                    backdrop.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;z-index:10400;';
-                }
-            });
-
             previewModalEl.addEventListener('hidden.bs.modal', function () {
                 previewFrame.src = 'about:blank';
                 previewFrame.style.height = '0';
@@ -635,6 +628,7 @@ if ($statusFilter !== '') {
                 if (!currentOrderId || !previewFrame.contentWindow) {
                     return;
                 }
+
                 previewFrame.contentWindow.postMessage({ type: 'downloadInvoicePdf' }, '*');
             });
         })();
