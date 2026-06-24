@@ -39,7 +39,12 @@ try {
     $referralSummary = $pdo->query("
         SELECT
             COUNT(*) AS total_referrals,
-            SUM(CASE WHEN ref_is_enabled = 1 THEN 1 ELSE 0 END) AS active_referrals
+            SUM(CASE
+                WHEN ref_is_enabled = 1
+                 AND (ref_starts_at IS NULL OR ref_starts_at <= NOW())
+                 AND (ref_ends_at IS NULL OR ref_ends_at >= NOW())
+                THEN 1 ELSE 0
+            END) AS active_referrals
         FROM tr_referrals
     ")->fetch(PDO::FETCH_ASSOC) ?: [];
 

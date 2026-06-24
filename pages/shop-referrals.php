@@ -26,6 +26,47 @@ function shop_ref_redirect(string $message = '', string $error = '', array $extr
     exit;
 }
 
+function shop_ref_dt_input(?string $value): string
+{
+    $text = trim((string) $value);
+    if ($text === '') {
+        return '';
+    }
+    $ts = strtotime($text);
+    return $ts !== false ? date('Y-m-d\TH:i', $ts) : '';
+}
+
+function shop_ref_dt_db(?string $value): ?string
+{
+    $text = trim((string) $value);
+    if ($text === '') {
+        return null;
+    }
+    $ts = strtotime($text);
+    return $ts !== false ? date('Y-m-d H:i:s', $ts) : null;
+}
+
+function shop_ref_status_badge(array $referral): string
+{
+    if ((int) ($referral['is_enabled'] ?? 0) !== 1) {
+        return '<span class="badge bg-secondary-lt text-secondary">Disabled</span>';
+    }
+
+    $now = time();
+    $startsAt = strtotime((string) ($referral['starts_at'] ?? ''));
+    $endsAt = strtotime((string) ($referral['ends_at'] ?? ''));
+
+    if ($startsAt !== false && $startsAt > $now) {
+        return '<span class="badge bg-warning-lt text-warning">Scheduled</span>';
+    }
+
+    if ($endsAt !== false && $endsAt < $now) {
+        return '<span class="badge bg-danger-lt text-danger">Expired</span>';
+    }
+
+    return '<span class="badge bg-success-lt text-success">Enabled</span>';
+}
+
 function shop_ref_benefit_summary(array $referral): string
 {
     $parts = [];
@@ -94,6 +135,8 @@ if ($pdo !== null && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $isEnabled      = isset($_POST['is_enabled']) ? 1 : 0;
             $maxUsage       = max(0, (int) ($_POST['max_usage_total'] ?? 0));
             $usedCount      = max(0, (int) ($_POST['used_count'] ?? 0));
+            $startsAt       = shop_ref_dt_db((string) ($_POST['starts_at'] ?? ''));
+            $endsAt         = shop_ref_dt_db((string) ($_POST['ends_at'] ?? ''));
 
             $itemEnabled    = isset($_POST['item_benefit_enabled']);
             $itemPercent    = $itemEnabled ? max(0, (float) ($_POST['item_discount_value'] ?? 0)) : 0.0;
@@ -117,21 +160,27 @@ if ($pdo !== null && $_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($shipEnabled && $shipAmount <= 0) {
                 throw new RuntimeException('Shipping discount amount must be greater than 0.');
             }
+            if ($startsAt !== null && $endsAt !== null && strtotime($endsAt) < strtotime($startsAt)) {
+                throw new RuntimeException('End date harus setelah start date.');
+            }
 
             $pdo->beginTransaction();
 
             if ($id > 0) {
                 $pdo->prepare(
                     'UPDATE tr_referrals SET ref_name = :name, ref_code = :code, ref_is_enabled = :enabled,
-                     ref_max_usage_total = :max_usage, ref_used_count = :used WHERE ref_id = :id'
+                     ref_max_usage_total = :max_usage, ref_used_count = :used,
+                     ref_starts_at = :starts_at, ref_ends_at = :ends_at WHERE ref_id = :id'
                 )->execute([':id' => $id, ':name' => $name, ':code' => $code,
-                    ':enabled' => $isEnabled, ':max_usage' => $maxUsage, ':used' => $usedCount]);
+                    ':enabled' => $isEnabled, ':max_usage' => $maxUsage, ':used' => $usedCount,
+                    ':starts_at' => $startsAt, ':ends_at' => $endsAt]);
             } else {
                 $pdo->prepare(
-                    'INSERT INTO tr_referrals (ref_name, ref_code, ref_is_enabled, ref_max_usage_total, ref_used_count)
-                     VALUES (:name, :code, :enabled, :max_usage, :used)'
+                    'INSERT INTO tr_referrals (ref_name, ref_code, ref_is_enabled, ref_max_usage_total, ref_used_count, ref_starts_at, ref_ends_at)
+                     VALUES (:name, :code, :enabled, :max_usage, :used, :starts_at, :ends_at)'
                 )->execute([':name' => $name, ':code' => $code,
-                    ':enabled' => $isEnabled, ':max_usage' => $maxUsage, ':used' => $usedCount]);
+                    ':enabled' => $isEnabled, ':max_usage' => $maxUsage, ':used' => $usedCount,
+                    ':starts_at' => $startsAt, ':ends_at' => $endsAt]);
                 $id = (int) $pdo->lastInsertId();
             }
 
@@ -208,7 +257,11 @@ if ($pdo !== null) {
             $refParams[':q_code']   = '%' . $filterQuery . '%';
         }
         if ($filterStatus === 'enabled') {
-            $refWhere[] = 'r.ref_is_enabled = 1';
+            $refWhere[] = 'r.ref_is_enabled = 1 AND (r.ref_starts_at IS NULL OR r.ref_starts_at <= NOW()) AND (r.ref_ends_at IS NULL OR r.ref_ends_at >= NOW())';
+        } elseif ($filterStatus === 'scheduled') {
+            $refWhere[] = 'r.ref_is_enabled = 1 AND r.ref_starts_at IS NOT NULL AND r.ref_starts_at > NOW()';
+        } elseif ($filterStatus === 'expired') {
+            $refWhere[] = 'r.ref_is_enabled = 1 AND r.ref_ends_at IS NOT NULL AND r.ref_ends_at < NOW()';
         } elseif ($filterStatus === 'disabled') {
             $refWhere[] = 'r.ref_is_enabled = 0';
         }
@@ -227,7 +280,7 @@ if ($pdo !== null) {
         }
         $offset = ($pageNum - 1) * $perPage;
 
-        $actWhere   = array_merge($refWhere, ['r.ref_is_enabled = 1']);
+        $actWhere   = array_merge($refWhere, ['r.ref_is_enabled = 1', '(r.ref_starts_at IS NULL OR r.ref_starts_at <= NOW())', '(r.ref_ends_at IS NULL OR r.ref_ends_at >= NOW())']);
         $actSql     = 'SELECT COUNT(*) FROM tr_referrals r WHERE ' . implode(' AND ', $actWhere);
         $actStmt    = $pdo->prepare($actSql);
         foreach ($refParams as $k => $v) {
@@ -242,6 +295,7 @@ if ($pdo !== null) {
             SELECT r.ref_id AS id, r.ref_name AS name, r.ref_code AS code,
                    r.ref_is_enabled AS is_enabled, r.ref_max_usage_total AS max_usage_total,
                    r.ref_used_count AS used_count, r.ref_created_at AS created_at,
+                   r.ref_starts_at AS starts_at, r.ref_ends_at AS ends_at,
                    COALESCE(b.rfb_item_discount_type, 'none') AS item_discount_type,
                    COALESCE(b.rfb_item_discount_value, 0) AS item_discount_value,
                    b.rfb_item_discount_max_amount AS item_discount_max_amount,
@@ -295,7 +349,7 @@ $paginationExtra = array_filter(['q' => $filterQuery, 'status' => $filterStatus]
 
 $emptyReferral = [
     'id' => 0, 'name' => '', 'code' => '', 'is_enabled' => 1,
-    'max_usage_total' => 0, 'used_count' => 0,
+    'max_usage_total' => 0, 'used_count' => 0, 'starts_at' => '', 'ends_at' => '',
     'item_discount_type' => 'none', 'item_discount_value' => '0.00',
     'item_discount_max_amount' => '', 'shipping_discount_type' => 'none', 'shipping_discount_value' => '0',
 ];
@@ -408,6 +462,8 @@ $statusUsageBadge = static function (string $status): string {
                                     <select class="form-select" name="status">
                                         <option value="">All Status</option>
                                         <option value="enabled" <?= $filterStatus === 'enabled' ? 'selected' : '' ?>>Enabled</option>
+                                        <option value="scheduled" <?= $filterStatus === 'scheduled' ? 'selected' : '' ?>>Scheduled</option>
+                                        <option value="expired" <?= $filterStatus === 'expired' ? 'selected' : '' ?>>Expired</option>
                                         <option value="disabled" <?= $filterStatus === 'disabled' ? 'selected' : '' ?>>Disabled</option>
                                     </select>
                                 </div>
@@ -466,13 +522,10 @@ $statusUsageBadge = static function (string $status): string {
                                                     <div class="text-secondary small">Max: <?= (int) $ref['max_usage_total'] ?></div>
                                                     <div class="text-secondary small">Used: <?= (int) $ref['used_count'] ?></div>
                                                     <div class="text-secondary small">Logs: <?= (int) $ref['used_logs'] ?>/<?= (int) $ref['total_logs'] ?></div>
+                                                    <div class="text-secondary small">Ends: <?= shop_ref_esc($ref['ends_at'] ?: '-') ?></div>
                                                 </td>
                                                 <td>
-                                                    <?php if (!empty($ref['is_enabled'])): ?>
-                                                        <span class="badge bg-success-lt text-success">Enabled</span>
-                                                    <?php else: ?>
-                                                        <span class="badge bg-secondary-lt text-secondary">Disabled</span>
-                                                    <?php endif; ?>
+                                                    <?= shop_ref_status_badge($ref) ?>
                                                 </td>
                                                 <td>
                                                     <div class="d-flex gap-1">
@@ -539,6 +592,16 @@ $statusUsageBadge = static function (string $status): string {
                         <input class="form-check-input" type="checkbox" name="is_enabled" value="1" <?= !empty($ref['is_enabled']) ? 'checked' : '' ?>>
                         <span class="form-check-label"><strong>Referral aktif</strong></span>
                     </label>
+                </div>
+                <div class="row g-2 mb-3">
+                    <div class="col">
+                        <label class="form-label">Starts At</label>
+                        <input class="form-control" type="datetime-local" name="starts_at" value="<?= shop_ref_esc(shop_ref_dt_input($ref['starts_at'] ?? '')) ?>">
+                    </div>
+                    <div class="col">
+                        <label class="form-label">Ends At</label>
+                        <input class="form-control" type="datetime-local" name="ends_at" value="<?= shop_ref_esc(shop_ref_dt_input($ref['ends_at'] ?? '')) ?>">
+                    </div>
                 </div>
 
                 <div class="card card-soft-dark border-0 mb-3">
@@ -679,6 +742,16 @@ $statusUsageBadge = static function (string $status): string {
                         <div class="mb-3">
                             <div class="subheader small">Benefits</div>
                             <div><?= shop_ref_esc(shop_ref_benefit_summary($ref)) ?></div>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-sm-6">
+                                <div class="subheader small">Starts At</div>
+                                <div class="text-secondary"><?= shop_ref_esc($ref['starts_at'] ?: '-') ?></div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="subheader small">Ends At</div>
+                                <div class="text-secondary"><?= shop_ref_esc($ref['ends_at'] ?: '-') ?></div>
+                            </div>
                         </div>
                         <div class="row g-2">
                             <div class="col-4">
