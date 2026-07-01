@@ -46,6 +46,21 @@ function shop_ref_dt_db(?string $value): ?string
     return $ts !== false ? date('Y-m-d H:i:s', $ts) : null;
 }
 
+function shop_ref_minute_floor(?int $timestamp = null): int
+{
+    return ((int) floor(($timestamp ?? time()) / 60)) * 60;
+}
+
+function shop_ref_min_start_ts(?int $timestamp = null): int
+{
+    return shop_ref_minute_floor($timestamp) + 60;
+}
+
+function shop_ref_auto_dt_input(int $minutesFromNow): string
+{
+    return date('Y-m-d\TH:i', shop_ref_minute_floor() + ($minutesFromNow * 60));
+}
+
 function shop_ref_status_badge(array $referral): string
 {
     if ((int) ($referral['is_enabled'] ?? 0) !== 1) {
@@ -137,6 +152,7 @@ if ($pdo !== null && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $usedCount      = max(0, (int) ($_POST['used_count'] ?? 0));
             $startsAt       = shop_ref_dt_db((string) ($_POST['starts_at'] ?? ''));
             $endsAt         = shop_ref_dt_db((string) ($_POST['ends_at'] ?? ''));
+            $currentStartsAt = null;
 
             $itemEnabled    = isset($_POST['item_benefit_enabled']);
             $itemPercent    = $itemEnabled ? max(0, (float) ($_POST['item_discount_value'] ?? 0)) : 0.0;
@@ -151,6 +167,11 @@ if ($pdo !== null && $_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($code === '') {
                 throw new RuntimeException('Referral code is required.');
             }
+            if ($id > 0) {
+                $currentStmt = $pdo->prepare('SELECT ref_starts_at FROM tr_referrals WHERE ref_id = :id');
+                $currentStmt->execute([':id' => $id]);
+                $currentStartsAt = shop_ref_dt_db((string) ($currentStmt->fetchColumn() ?: ''));
+            }
             if (!$itemEnabled && !$shipEnabled) {
                 throw new RuntimeException('Enable at least one referral benefit.');
             }
@@ -162,6 +183,9 @@ if ($pdo !== null && $_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             if ($startsAt !== null && $endsAt !== null && strtotime($endsAt) < strtotime($startsAt)) {
                 throw new RuntimeException('End date harus setelah start date.');
+            }
+            if ($startsAt !== null && ($id <= 0 || $startsAt !== $currentStartsAt) && strtotime($startsAt) < shop_ref_min_start_ts()) {
+                throw new RuntimeException('Start date minimal 1 menit dari waktu sekarang.');
             }
 
             $pdo->beginTransaction();
@@ -349,7 +373,8 @@ $paginationExtra = array_filter(['q' => $filterQuery, 'status' => $filterStatus]
 
 $emptyReferral = [
     'id' => 0, 'name' => '', 'code' => '', 'is_enabled' => 1,
-    'max_usage_total' => 0, 'used_count' => 0, 'starts_at' => '', 'ends_at' => '',
+    'max_usage_total' => 0, 'used_count' => 0,
+    'starts_at' => shop_ref_auto_dt_input(10), 'ends_at' => shop_ref_auto_dt_input(20),
     'item_discount_type' => 'none', 'item_discount_value' => '0.00',
     'item_discount_max_amount' => '', 'shipping_discount_type' => 'none', 'shipping_discount_value' => '0',
 ];
@@ -559,9 +584,13 @@ $statusUsageBadge = static function (string $status): string {
 
     <?php
     function shop_ref_form(array $ref, string $submitLabel, int $pageNum, string $filterQuery, string $filterStatus): string {
+        $isCreate = (int) ($ref['id'] ?? 0) <= 0;
+        $minStart = shop_ref_dt_input(date('Y-m-d H:i:s', shop_ref_min_start_ts()));
+        $startValue = shop_ref_dt_input($ref['starts_at'] ?? '');
+        $endMin = $startValue !== '' ? $startValue : ($isCreate ? $minStart : '');
         ob_start();
         ?>
-        <form method="post" action="/shop/referrals">
+        <form method="post" action="/shop/referrals" <?= $isCreate ? 'data-referral-create-form="1"' : '' ?>>
             <input type="hidden" name="csrf_token" value="<?= shop_ref_esc(csrf_token()) ?>">
             <input type="hidden" name="action" value="save">
             <input type="hidden" name="id" value="<?= (int) ($ref['id'] ?? 0) ?>">
@@ -596,11 +625,11 @@ $statusUsageBadge = static function (string $status): string {
                 <div class="row g-2 mb-3">
                     <div class="col">
                         <label class="form-label">Starts At</label>
-                        <input class="form-control" type="datetime-local" name="starts_at" value="<?= shop_ref_esc(shop_ref_dt_input($ref['starts_at'] ?? '')) ?>">
+                        <input class="form-control" type="datetime-local" name="starts_at" value="<?= shop_ref_esc($startValue) ?>" <?= $isCreate ? 'min="' . shop_ref_esc($minStart) . '"' : '' ?>>
                     </div>
                     <div class="col">
                         <label class="form-label">Ends At</label>
-                        <input class="form-control" type="datetime-local" name="ends_at" value="<?= shop_ref_esc(shop_ref_dt_input($ref['ends_at'] ?? '')) ?>">
+                        <input class="form-control" type="datetime-local" name="ends_at" value="<?= shop_ref_esc(shop_ref_dt_input($ref['ends_at'] ?? '')) ?>" <?= $endMin !== '' ? 'min="' . shop_ref_esc($endMin) . '"' : '' ?>>
                     </div>
                 </div>
 
@@ -833,6 +862,70 @@ $statusUsageBadge = static function (string $status): string {
 
     <script src="/assets/dist/js/tabler.js"></script>
     <script src="/assets/js/idle-timeout.js" defer></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        function floorToMinute(date) {
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), 0, 0);
+        }
+
+        function addMinutes(date, minutes) {
+            return new Date(date.getTime() + (minutes * 60000));
+        }
+
+        function formatDateTimeLocal(date) {
+            var pad = function (value) { return String(value).padStart(2, '0'); };
+            return date.getFullYear() + '-' +
+                pad(date.getMonth() + 1) + '-' +
+                pad(date.getDate()) + 'T' +
+                pad(date.getHours()) + ':' +
+                pad(date.getMinutes());
+        }
+
+        function syncEndMin(form) {
+            var startsAt = form.querySelector('input[name="starts_at"]');
+            var endsAt = form.querySelector('input[name="ends_at"]');
+            if (!startsAt || !endsAt) {
+                return;
+            }
+            endsAt.min = startsAt.value || startsAt.min || '';
+            if (startsAt.value && endsAt.value && endsAt.value < startsAt.value) {
+                endsAt.value = startsAt.value;
+            }
+        }
+
+        document.querySelectorAll('form[action="/shop/referrals"]').forEach(function (form) {
+            var startsAt = form.querySelector('input[name="starts_at"]');
+            if (startsAt) {
+                startsAt.addEventListener('input', function () { syncEndMin(form); });
+                syncEndMin(form);
+            }
+        });
+
+        var createModal = document.getElementById('modal-ref-create');
+        if (createModal) {
+            createModal.addEventListener('show.bs.modal', function () {
+                var form = createModal.querySelector('form[data-referral-create-form="1"]');
+                if (!form) {
+                    return;
+                }
+                var base = floorToMinute(new Date());
+                var minStart = formatDateTimeLocal(addMinutes(base, 1));
+                var defaultStart = formatDateTimeLocal(addMinutes(base, 10));
+                var defaultEnd = formatDateTimeLocal(addMinutes(base, 20));
+                var startsAt = form.querySelector('input[name="starts_at"]');
+                var endsAt = form.querySelector('input[name="ends_at"]');
+                if (startsAt) {
+                    startsAt.min = minStart;
+                    startsAt.value = defaultStart;
+                }
+                if (endsAt) {
+                    endsAt.min = defaultStart;
+                    endsAt.value = defaultEnd;
+                }
+            });
+        }
+    });
+    </script>
     <?php if ($modal !== ''): ?>
         <script>
         document.addEventListener('DOMContentLoaded', function () {
